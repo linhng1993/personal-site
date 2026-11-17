@@ -11,6 +11,6 @@ Read only when planning or closing a milestone, not at session start.
 | M6 | Design delta (done) | 4a tokens, nav, Home/Portfolio/CV restyle | design handoff, src/ |
 | M7 | Story page (done) | /story per DELTA-02, linked from nav + Home | site.ts, index.astro |
 | M8 | Polish & checks | SEO, a11y, speed, mobile, privacy check | src/, conventions.md |
-| M9 | Deploy | hosted, HTTPS, maintenance notes | state.json, package files only |
+| M9 | Deploy (done) | hosted, HTTPS, maintenance notes | state.json, package files only |
 
 Milestone specs (`Mx.md`) are created at the end of the previous milestone. Each spec must contain: Goal, Read, Do not read, Tasks, Done when.
