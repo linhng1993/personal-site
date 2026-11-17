@@ -1,0 +1,39 @@
+---
+// Project card (DELTA-01): tags · title · text · footer pinned to the bottom.
+import VideoDialog from './VideoDialog.astro';
+import { url as href } from '../lib/url';
+
+interface Props {
+  project: { title: string; description: string; url?: string | null; youtubeId?: string | null; slug?: string | null; tags?: string[] };
+  level?: 'h2' | 'h3';
+}
+const { project: p, level = 'h3' } = Astro.props;
+const Heading = level;
+---
+<article class="project-card">
+  {p.tags && p.tags.length > 0 && <p class="label tags">{p.tags.join(' · ')}</p>}
+  <Heading class="title">{p.title}</Heading>
+  <p class="text">{p.description}</p>
+  <div class="foot">
+    {p.slug ? (
+      <a href={href(`/projects/${p.slug}/`)}>View project<span class="sr-only">: {p.title}</span> <span aria-hidden="true">→</span></a>
+    ) : p.youtubeId ? (
+      <VideoDialog id={p.youtubeId} title={p.title} />
+    ) : p.url ? (
+      <a href={p.url} rel="noopener noreferrer">View project<span class="sr-only">: {p.title}</span> <span aria-hidden="true">→</span></a>
+    ) : (
+      <p class="muted note">Shown as a description only.</p>
+    )}
+  </div>
+</article>
+
+<style>
+  .project-card { padding: var(--s-3); display: flex; flex-direction: column; height: 100%; }
+  .title { font-size: var(--fs-card); }
+  .project-card:hover .title { color: var(--indigo); }
+  .text { font-size: var(--fs-body-s); }
+  .foot { margin-top: auto; padding-top: var(--s-2); font-family: var(--font-display); font-weight: 700; font-size: var(--fs-meta); }
+  .foot a { color: var(--ink); text-decoration: none; }
+  .foot a:hover { color: var(--indigo); text-decoration: underline; }
+  .note { margin: 0; font-family: var(--font-body); font-weight: 400; }
+</style>

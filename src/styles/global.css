@@ -1,0 +1,92 @@
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+main { flex: 1; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: var(--lh-tight); margin: 0 0 var(--s-2); }
+h1 { font-size: var(--fs-hero); line-height: var(--lh-hero); letter-spacing: var(--track-hero); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
+p { margin: 0 0 var(--s-2); max-width: var(--measure); }
+a { color: var(--ink); text-underline-offset: 0.2em; }
+a:hover { text-decoration-thickness: var(--rule-w); }
+:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+img { max-width: 100%; height: auto; display: block; }
+ul, ol { padding-left: 1.2em; margin: 0 0 var(--s-2); }
+
+.container { width: min(100% - 2 * var(--gutter), var(--max)); margin-inline: auto; }
+.section { padding-block: var(--s-5); }
+.label {
+  font-family: var(--font-display); font-size: var(--fs-label); font-weight: 700;
+  letter-spacing: var(--track-label); text-transform: uppercase; color: var(--indigo); margin: 0 0 var(--s-1);
+}
+.lead { font-size: var(--fs-lead); line-height: var(--lh-degree); }
+.muted { color: var(--muted); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.skip-link {
+  position: absolute; left: var(--s-2); top: -4rem; z-index: 100;
+  background: var(--ink); color: var(--bg); padding: var(--s-1) var(--s-2);
+}
+.skip-link:focus { top: var(--s-1); }
+
+/* Print: content only, black on white (used by /cv). */
+@media print {
+  .skip-link, .site-header, .site-footer, .btn-row { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  a { color: inherit; }
+  h2 { font-size: 16pt; }
+  h2, h3 { break-after: avoid; }
+}
+
+/* Buttons: signal = primary action, ink = download, outline = secondary; cream variants sit on indigo. */
+.btn {
+  display: inline-block; padding: var(--chip-pad); padding-inline: var(--s-3); border: var(--rule); border-radius: var(--radius);
+  font-family: var(--font-display); font-weight: 700; font-size: var(--fs-meta); text-decoration: none;
+  background: transparent; color: var(--ink);
+}
+.btn:hover { background: var(--surface); }
+.btn--signal { background: var(--signal); }
+.btn--signal:hover { background: var(--signal-hover); }
+.btn--ink { background: var(--ink); color: var(--bg); }
+.btn--ink:hover { background: var(--indigo); border-color: var(--indigo); }
+.btn--cream { background: var(--bg); border-color: var(--bg); color: var(--ink); }
+.btn--cream:hover { background: var(--surface); border-color: var(--surface); }
+.btn--cream-outline { border-color: var(--bg); color: var(--bg); }
+.btn--cream-outline:hover { background: var(--bg); color: var(--ink); }
+.btn-row { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-3); }
+
+/* Ruled blocks */
+.ruled { border-top: var(--rule); border-bottom: var(--rule); }
+.cells { display: grid; list-style: none; margin: 0; padding: 0; }
+.cells > * + * { border-left: var(--rule); }
+.cells--3 { grid-template-columns: repeat(3, 1fr); }
+.cells--4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 47.99rem) {
+  .cells--3, .cells--4 { grid-template-columns: 1fr; }
+  .cells > * + * { border-left: 0; border-top: var(--rule); }
+}
+
+/* Ruled 2-column list (What I bring, Skills) */
+.ruled-list {
+  list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--s-4);
+  font-size: var(--fs-body-s);
+}
+.ruled-list li { border-bottom: var(--rule-thin); padding-block: var(--s-1); }
+@media (max-width: 47.99rem) { .ruled-list { grid-template-columns: 1fr; } }
+
+/* Indigo "Let's talk" band */
+.band { background: var(--indigo); color: var(--bg); padding-block: var(--s-6); }
+.band h2 { font-size: var(--fs-h2); margin: 0; }

@@ -1,0 +1,161 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import VideoDialog from '../components/VideoDialog.astro';
+import cv from '../data/cv';
+import { site } from '../data/site';
+import { url } from '../lib/url';
+import threeMt from '../assets/3mt-defuse-timebomb.png';
+
+const [name] = cv.name.split(',').map((s) => s.trim());
+const [role] = cv.headline.split('|').map((s) => s.trim());
+const threeMtProject = cv.projects.find((p) => p.title.startsWith(site.threeMtTitle));
+const others = cv.projects.filter((p) => p !== threeMtProject);
+// Selected work on Home: projects flagged `featured` in cv.json (max 3); falls back to the first three.
+const picked = others.filter((p) => 'featured' in p && p.featured);
+const top = (picked.length > 0 ? picked : others).slice(0, 3);
+const strengths = cv.skills.slice(0, 6);
+const pad = (n: number) => String(n).padStart(2, '0');
+// "Regulatory Affairs CMC" -> "Regulatory Affairs · CMC" (dot before the last word, per design).
+const heroRole = role.replace(/\s+(\S+)$/, ' · $1');
+---
+<Base>
+  <section class="section hero">
+    <div class="container">
+      <p class="label">{heroRole} — {site.location}</p>
+      <h1>{name}<span class="dot" aria-hidden="true">.</span></h1>
+      {!site.hookIsPlaceholder && site.hook && <p class="lead hook">{site.hook}</p>}
+      {cv.summary && <p class="summary">{cv.summary}</p>}
+      <div class="btn-row">
+        <a class="btn btn--signal" href={url('/portfolio')}>Portfolio <span aria-hidden="true">→</span></a>
+        {site.downloads.length > 0 && <a class="btn btn--ink" href={url('/cv#downloads')}>Download CV <span aria-hidden="true">↓</span></a>}
+        {site.email && <a class="btn" href={`mailto:${site.email}`}>Get in touch</a>}
+      </div>
+    </div>
+  </section>
+
+  {site.route.length > 0 && (
+    <div class="container">
+      <ol class="ruled cells cells--4 route" aria-label="Route">
+        {site.route.map((r) => (
+          <li class:list={{ now: r.now }}>
+            <span class="code">{r.code}</span> {r.place}{r.now && <span> · now</span>}
+          </li>
+        ))}
+      </ol>
+    </div>
+  )}
+
+  {site.chapters.length > 0 && (
+    <section class="section" aria-labelledby="chapters-h">
+      <div class="container">
+        <h2 id="chapters-h">Three chapters, one thread</h2>
+        <ol class="ruled cells cells--3 chapters">
+          {site.chapters.map((c, i) => (
+            <li>
+              <span class="num" aria-hidden="true">{pad(i + 1)}</span>
+              <h3>{c.title}</h3>
+              <p>{c.text}</p>
+            </li>
+          ))}
+        </ol>
+        <a class="story-row" href={url('/story')}>Read my story <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  )}
+
+  {site.story.aside?.homeText && (
+    <section class="section" aria-labelledby="ai-h">
+      <div class="container">
+        <h2 id="ai-h">{site.story.aside.label}</h2>
+        <div class="ruled ai-card">
+          <h3>{site.story.aside.title}</h3>
+          <p class="text">{site.story.aside.homeText}</p>
+          <a class="story-link" href={url('/ai')}>Read my AI journey <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="section" aria-label={threeMtProject?.title ?? site.threeMtTitle}>
+    <div class="container">
+      <figure class="ruled feature">
+        <Image
+          src={threeMt}
+          alt={site.featureAlt}
+          widths={[390, 640, 960, 1280]}
+          sizes="(min-width: 48rem) 60vw, 100vw"
+          format="webp"
+          loading="lazy"
+        />
+        <figcaption>
+          <p class="label">3MT</p>
+          <p class="lead">{site.featureCaption}</p>
+          {threeMtProject?.youtubeId && <VideoDialog id={threeMtProject.youtubeId} title={threeMtProject.title} />}
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  {top.length > 0 && (
+    <section class="section" aria-labelledby="work-h">
+      <div class="container">
+        <h2 id="work-h">Selected work</h2>
+        <ul class="ruled cells cells--3">
+          {top.map((p) => <li><ProjectCard project={p} /></li>)}
+        </ul>
+        <a class="story-row" href={url('/portfolio')}>All projects <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  )}
+
+  {strengths.length > 0 && (
+    <section class="section" aria-labelledby="strengths-h">
+      <div class="container">
+        <h2 id="strengths-h">What I bring</h2>
+        <ul class="ruled-list">
+          {strengths.map((s) => <li>{s}</li>)}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="band" aria-labelledby="cta-h">
+    <div class="container">
+      <h2 id="cta-h">Let's talk<span class="dot" aria-hidden="true">.</span></h2>
+      <div class="btn-row">
+        {site.email && <a class="btn btn--cream" href={`mailto:${site.email}`}>Get in touch</a>}
+        <a class="btn btn--cream-outline" href={url('/cv')}>See my CV</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .summary { max-width: var(--measure); }
+  .dot { color: var(--signal); }
+  .route { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-meta); }
+  .route li { padding: var(--s-2) var(--s-3); }
+  .route .code { color: var(--muted); margin-right: var(--s-1); }
+  .route .now { background: var(--signal); color: var(--ink); }
+  .route .now .code { color: var(--ink); }
+  .chapters li { padding: var(--s-3); }
+  .chapters .num { display: block; font-family: var(--font-display); font-weight: 700; font-size: var(--fs-num); line-height: 1; color: var(--signal); margin-bottom: var(--s-2); }
+  .chapters h3 { font-size: var(--fs-entry); color: var(--indigo); }
+  .chapters p { font-size: var(--fs-body-s); margin: 0; }
+  .story-row { display: block; border-bottom: var(--rule); padding: var(--s-2) var(--s-3); font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--ink); text-decoration: none; }
+  .story-row:hover { color: var(--indigo); text-decoration: underline; }
+  .ai-card { padding: var(--s-3); }
+  .ai-card h3 { font-size: var(--fs-entry); color: var(--indigo); margin: 0 0 var(--s-1); }
+  .ai-card .text { font-size: var(--fs-body-s); max-width: var(--measure); margin: 0 0 var(--s-2); }
+  .story-link { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--ink); text-decoration: none; }
+  .story-link:hover { color: var(--indigo); text-decoration: underline; }
+  .feature { margin: 0; display: grid; grid-template-columns: 3fr 2fr; }
+  .feature :global(img) { width: 100%; height: 100%; min-height: var(--feature-min); object-fit: cover; }
+  figcaption { padding: var(--s-3); border-left: var(--rule); display: flex; flex-direction: column; justify-content: center; }
+  @media (max-width: 47.99rem) {
+    .feature { grid-template-columns: 1fr; }
+    figcaption { border-left: 0; border-top: var(--rule); }
+  }
+</style>

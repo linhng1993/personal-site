@@ -1,0 +1,118 @@
+---
+import Base from '../layouts/Base.astro';
+import cv from '../data/cv';
+import { site } from '../data/site';
+import { url } from '../lib/url';
+
+const s = site.story;
+const [name] = cv.name.split(',').map((x) => x.trim());
+const pad = (n: number) => String(n).padStart(2, '0');
+// H1 ends with the signal full stop; strip any trailing period from the copy first.
+const h1 = s.h1.replace(/\.$/, '');
+---
+<Base title="Story" description={`The route behind ${name}: ${s.intro.split('. ').slice(0, 1)[0]}.`}>
+  <section class="section head">
+    <div class="container">
+      {s.label && <p class="label">{s.label}</p>}
+      {h1 && <h1>{h1}<span class="dot" aria-hidden="true">.</span></h1>}
+      {s.intro && <p class="lead intro">{s.intro}</p>}
+    </div>
+  </section>
+
+  {site.route.length > 0 && (
+    <div class="container">
+      <ol class="ruled cells cells--4 route" aria-label="Route">
+        {site.route.map((r) => (
+          <li class:list={{ now: r.now }}>
+            <span class="years">Years</span>
+            <span class="yrs">{r.years}</span>
+            <span class="place"><span class="code">{r.code}</span> {r.place}{r.now && !/now/i.test(r.years ?? '') && <span class="nowtag"> · NOW</span>}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )}
+
+  {s.chapters.length > 0 && (
+    <section class="section" aria-label="Chapters">
+      <div class="container">
+        <ol class="ruled chapters">
+          {s.chapters.map((c, i) => (
+            <li class="chapter">
+              <div class="c-left">
+                <span class="num" aria-hidden="true">{pad(i + 1)}</span>
+                {(c.years || c.code) && <p class="label meta">{[c.years, c.code].filter(Boolean).join(' · ')}</p>}
+              </div>
+              <div class="c-mid">
+                {c.title && <h2>{c.title}</h2>}
+                {(c.role || c.place) && <p class="label meta">{[c.role, c.place].filter(Boolean).join(' · ')}</p>}
+                {c.body && c.body.split('\n\n').map((para) => <p class="body">{para}</p>)}
+              </div>
+              {c.takeaway && (
+                <div class="c-right">
+                  <p class="label">What I took from it</p>
+                  <p class="take">{c.takeaway}</p>
+                </div>
+              )}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )}
+
+  {s.whyCmc?.text && (
+    <section class="section why" aria-labelledby="why-h">
+      <div class="container why-grid">
+        <h2 id="why-h" class="label">{s.whyCmc.label}</h2>
+        <p class="lead">{s.whyCmc.text}</p>
+      </div>
+    </section>
+  )}
+
+  <section class="band" aria-labelledby="cta-h">
+    <div class="container">
+      <h2 id="cta-h">Let's talk<span class="dot" aria-hidden="true">.</span></h2>
+      <div class="btn-row">
+        {site.email && <a class="btn btn--cream" href={`mailto:${site.email}`}>Get in touch</a>}
+        <a class="btn btn--cream-outline" href={url('/cv')}>See my CV</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .dot { color: var(--signal); }
+  h1 { font-size: clamp(48px, 10vw, 88px); max-width: 14ch; margin-bottom: var(--s-3); }
+  .intro { max-width: 640px; }
+
+  .route li { display: flex; flex-direction: column; padding: var(--s-2) var(--s-3); font-family: var(--font-display); font-weight: 700; font-size: var(--fs-meta); }
+  .route .years { font-size: var(--fs-label); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--muted); }
+  .route .yrs { font-size: var(--fs-meta); margin-bottom: var(--s-1); }
+  .route .code { color: var(--muted); margin-right: var(--s-1); }
+  .route .now { background: var(--signal); color: var(--ink); }
+  .route .now .code, .route .now .years { color: var(--ink); }
+
+  .chapters { list-style: none; margin: 0; padding: 0; }
+  .chapter { display: grid; grid-template-columns: 160px 1fr 1fr; gap: var(--s-3); padding: var(--s-4) var(--s-3); }
+  .chapter + .chapter { border-top: var(--rule); }
+  .num { display: block; font-family: var(--font-display); font-weight: 700; font-size: 56px; line-height: 1; color: var(--signal); margin-bottom: var(--s-1); }
+  .meta { color: var(--muted); }
+  .chapter h2 { font-size: 32px; color: var(--indigo); }
+  .body { font-size: var(--fs-body); margin: var(--s-2) 0 0; }
+  .c-right { background: var(--surface); padding: var(--s-3); align-self: start; }
+  .take { font-style: italic; font-size: 21px; line-height: var(--lh-degree); margin: 0; }
+
+  .why-grid { display: grid; grid-template-columns: 160px 1fr; gap: var(--s-3); border-top: var(--rule); padding-top: var(--s-3); }
+  .why-grid h2 { margin: 0; }
+  .why-grid .lead { margin: 0; max-width: 640px; }
+
+  @media (max-width: 44.99rem) {
+    .route { grid-template-columns: 1fr 1fr; }
+    .route li + li { border-top: 0; border-left: 0; }
+    .route li:nth-child(even) { border-left: var(--rule); }
+    .route li:nth-child(n + 3) { border-top: var(--rule); }
+    .chapter { grid-template-columns: 1fr; }
+    .why-grid { grid-template-columns: 1fr; gap: var(--s-1); }
+  }
+</style>

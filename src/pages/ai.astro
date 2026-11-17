@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import cv from '../data/cv';
+import { site } from '../data/site';
+import { url } from '../lib/url';
+
+const a = site.aiPage;
+const projects = cv.projects.filter((p) => p.tags?.includes('AI'));
+const pad = (n: number) => String(n).padStart(2, '0');
+const aside = site.story.aside;
+const h1 = a.h1.replace(/\.$/, '');
+---
+<Base title={a.h1} description="How I learned to build with AI responsibly, and the AI projects I have made.">
+  <section class="section head">
+    <div class="container">
+      <p class="label">{a.label}</p>
+      <h1>{h1}<span class="dot" aria-hidden="true">.</span></h1>
+      <h2 class="lead sub">{aside.title}</h2>
+      {aside.body.split('\n\n').map((para) => <p class="body">{para}</p>)}
+    </div>
+  </section>
+
+  {projects.length > 0 && (
+    <section class="section" aria-labelledby="ai-work-h">
+      <div class="container">
+        <h2 id="ai-work-h">{a.workTitle}</h2>
+        <ol class="ruled cells ai-grid">
+          {projects.map((p, i) => (
+            <li>
+              <span class="num" aria-hidden="true">{pad(i + 1)}</span>
+              <ProjectCard project={p} />
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )}
+
+  <section class="band" aria-labelledby="cta-h">
+    <div class="container">
+      <h2 id="cta-h">Let's talk<span class="dot" aria-hidden="true">.</span></h2>
+      <div class="btn-row">
+        {site.email && <a class="btn btn--cream" href={`mailto:${site.email}`}>Get in touch</a>}
+        <a class="btn btn--cream-outline" href={url('/portfolio')}>See my portfolio</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .dot { color: var(--signal); }
+  h1 { font-size: clamp(48px, 10vw, 88px); max-width: 14ch; margin-bottom: var(--s-3); }
+  .sub { font-size: var(--fs-entry); color: var(--indigo); max-width: var(--measure); margin: 0 0 var(--s-2); }
+  .body { max-width: 640px; font-size: var(--fs-body); margin: var(--s-2) 0 0; }
+  .num { display: block; padding: var(--s-3) var(--s-3) 0; font-family: var(--font-display); font-weight: 700; font-size: 56px; line-height: 1; color: var(--signal); }
+  .ai-grid { grid-template-columns: repeat(2, 1fr); }
+  /* Number sits above the card: let the card fill the remaining space instead of 100% (which overflowed into the next item). */
+  .ai-grid > li { display: flex; flex-direction: column; }
+  .ai-grid :global(.project-card) { height: auto; flex: 1; }
+  @media (max-width: 47.99rem) { .ai-grid { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,70 @@
+---
+import cv from '../data/cv';
+import { site } from '../data/site';
+import { url } from '../lib/url';
+const here = Astro.url.pathname.replace(/\/$/, '');
+const isCurrent = (href: string) => (here === url(href).replace(/\/$/, '') ? 'page' : undefined);
+// Only link to routes that have a page file.
+const pages = Object.keys(import.meta.glob('../pages/**/*.astro'));
+const exists = (href: string) =>
+  pages.some((p) => p === `../pages${href}.astro` || p === `../pages${href}/index.astro`);
+const links = site.nav.filter((item) => exists(item.href));
+---
+<header class="site-header">
+  <div class="container bar" style={`--links:${links.length}`}>
+    <a class="brand" href={url('/')} aria-current={isCurrent('/')}>{cv.name.split(',')[0]}<span class="dot" aria-hidden="true">.</span></a>
+    <button class="burger" type="button" aria-expanded="false" aria-controls="site-nav" data-burger>
+      <span class="sr-only">Menu</span>
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <nav id="site-nav" aria-label="Main" data-nav>
+      <ul>
+        {links.map((item) => (
+          <li><a href={url(item.href)} aria-current={isCurrent(item.href)}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  /* Cells: name (2fr) + one 1fr cell per link, ruled. */
+  .site-header { background: var(--bg); position: relative; z-index: 10; }
+  .bar { display: grid; grid-template-columns: 2fr repeat(var(--links), 1fr); border-bottom: var(--rule); }
+  .brand, nav a {
+    display: flex; align-items: center; padding: var(--s-2) var(--s-3); min-height: var(--tap);
+    font-family: var(--font-display); font-weight: 700; text-decoration: none;
+  }
+  .brand { font-size: var(--fs-h3); color: var(--indigo); padding-left: 0; }
+  .dot { color: var(--signal); }
+  nav { display: contents; }
+  nav ul { display: contents; list-style: none; }
+  nav li { border-left: var(--rule); }
+  nav a { height: 100%; font-size: var(--fs-meta); color: var(--ink); }
+  nav a:hover { background: var(--surface); }
+  nav a[aria-current='page'] { background: var(--ink); color: var(--bg); }
+  .burger { display: none; background: transparent; border: var(--rule); border-radius: var(--radius); padding: var(--s-1); color: var(--ink); cursor: pointer; min-width: var(--tap); min-height: var(--tap); }
+  /* 48rem = --bp-nav */
+  @media (max-width: 47.99rem) {
+    .bar { display: flex; align-items: center; justify-content: space-between; }
+    .burger { display: inline-flex; align-items: center; justify-content: center; }
+    nav { display: none; position: absolute; left: 0; right: 0; top: 100%; background: var(--bg); border-bottom: var(--rule); }
+    nav.open { display: block; }
+    nav ul { display: block; margin: 0; padding: 0; }
+    nav li { border-left: 0; border-top: var(--rule-thin); }
+    nav a { padding-inline: var(--gutter); }
+  }
+</style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-burger]');
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  const set = (open: boolean) => {
+    btn?.setAttribute('aria-expanded', String(open));
+    nav?.classList.toggle('open', open);
+  };
+  btn?.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && btn?.getAttribute('aria-expanded') === 'true') { set(false); btn.focus(); }
+  });
+</script>

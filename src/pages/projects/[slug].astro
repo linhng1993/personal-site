@@ -1,0 +1,129 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import { projects, type Project } from '../../data/cv';
+import { projectImage } from '../../lib/project-images';
+import { url } from '../../lib/url';
+
+export function getStaticPaths() {
+  const pages = projects.filter((p) => p.slug);
+  const seen = new Set<string>();
+  for (const p of pages) {
+    if (seen.has(p.slug!)) throw new Error(`Duplicate project slug "${p.slug}"`);
+    seen.add(p.slug!);
+  }
+  return pages.map((project) => ({ params: { slug: project.slug! }, props: { project } }));
+}
+
+const { project: p } = Astro.props as { project: Project };
+const slug = p.slug!;
+const lede = p.summary ?? p.description;
+const paras = (p.body ?? '').split('\n\n').filter(Boolean);
+const hasLinks = (p.links?.length ?? 0) > 0 || !!p.thesis;
+---
+<Base title={p.title} description={lede}>
+  <article class="section project-page">
+    <div class="container">
+      <p class="label"><a href={url('/portfolio')}>← Portfolio</a></p>
+      {p.tags && p.tags.length > 0 && <p class="label tags">{p.tags.join(' · ')}</p>}
+      <h1>{p.title}</h1>
+      <p class="lead">{lede}</p>
+      {p.status && <p class="label status">{p.status}</p>}
+
+      {paras.length > 0 && (
+        <div class="prose">{paras.map((t) => <p>{t}</p>)}</div>
+      )}
+
+      {p.youtubeId && (
+        <p><a href={`https://www.youtube.com/watch?v=${p.youtubeId}`} rel="noopener noreferrer">Watch on YouTube<span aria-hidden="true"> →</span></a></p>
+      )}
+
+      {p.issues && p.issues.length > 0 && (
+        <section aria-labelledby="issues-h">
+          <h2 id="issues-h">All issues</h2>
+          <ul class="ruled issues">
+            {p.issues.map((i, n) => (
+              <li>
+                <a class="issue" href={i.url} rel="noopener noreferrer">
+                  <span class="issue-num" aria-hidden="true">{String(n + 1).padStart(2, '0')}</span>
+                  <span class="issue-title">{i.title}<span aria-hidden="true"> →</span></span>
+                  {i.year && <span class="label">{i.year}</span>}
+                  {i.cover && (
+                    <Image src={projectImage(slug, i.cover)} alt="" widths={[240, 480]} sizes="(min-width: 48rem) 240px, 45vw" format="webp" loading="lazy" />
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {p.gallery && p.gallery.length > 0 && (
+        <section aria-labelledby="gallery-h">
+          <h2 id="gallery-h">Gallery</h2>
+          <ul class="gallery">
+            {p.gallery.map((g) => (
+              <li>
+                <figure>
+                  <Image src={projectImage(slug, g.image)} alt={g.alt} widths={[480, 960]} sizes="(min-width: 48rem) 50vw, 100vw" format="webp" loading="lazy" />
+                  {g.caption && <figcaption>{g.caption}</figcaption>}
+                </figure>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {p.team && p.team.length > 0 && (
+        <section aria-labelledby="team-h">
+          <h2 id="team-h">Team</h2>
+          <ul class="plain">
+            {p.team.map((m) => (
+              <li>{m.url ? <a href={m.url} rel="noopener noreferrer">{m.name}</a> : m.name}{m.role && <span class="muted"> · {m.role}</span>}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {hasLinks && (
+        <section aria-labelledby="links-h">
+          <h2 id="links-h">Links</h2>
+          <ul class="plain">
+            {p.thesis && (
+              <li>
+                {p.thesis.url
+                  ? <a href={p.thesis.url} rel="noopener noreferrer">Thesis<span aria-hidden="true"> →</span></a>
+                  : <span>Thesis: <strong>{p.thesis.status}</strong></span>}
+              </li>
+            )}
+            {p.links?.map((l) => <li><a href={l.url} rel="noopener noreferrer">{l.label}<span aria-hidden="true"> →</span></a></li>)}
+          </ul>
+        </section>
+      )}
+    </div>
+  </article>
+</Base>
+
+<style>
+  .project-page h2 { font-size: var(--fs-h3); margin-top: var(--s-5); }
+  .project-page .lead { max-width: var(--measure); }
+  .status { color: var(--indigo); }
+  .prose { max-width: var(--measure); }
+  .plain { list-style: none; padding: 0; display: grid; gap: var(--s-1); }
+  .plain a, .project-page .label a { color: var(--ink); }
+  .plain a:hover, .project-page .label a:hover { color: var(--indigo); }
+  .issues, .gallery { list-style: none; margin: var(--s-3) 0 0; padding: 0; display: grid; gap: var(--s-3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }
+  .issues li { padding: var(--s-2); }
+  .issues :global(img), .gallery :global(img) { width: 100%; height: auto; display: block; }
+  .issue { display: flex; flex-direction: column; gap: var(--s-1); height: 100%; color: var(--ink); text-decoration: none; }
+  .issue-num { font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 1; color: var(--signal); }
+  .issue-title { font-family: var(--font-display); font-weight: 700; }
+  .issue .label { margin: 0; }
+  .issue :global(img) { margin-top: auto; aspect-ratio: 1 / 1.41; object-fit: cover; box-shadow: 0 4px 14px rgb(0 0 0 / .12); transition: transform .2s; }
+  .issue:hover .issue-title, .issue:focus-visible .issue-title { color: var(--indigo); text-decoration: underline; }
+  .issue:hover :global(img), .issue:focus-visible :global(img) { transform: translateY(-4px); }
+  @media (prefers-reduced-motion: reduce) { .issue :global(img) { transition: none; } }
+  .gallery { grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+  figure { margin: 0; }
+  figcaption { font-size: var(--fs-meta); color: var(--muted); margin-top: var(--s-1); }
+</style>

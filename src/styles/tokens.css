@@ -1,0 +1,34 @@
+/* Brand tokens: direction 4a Studio Editorial (design/handoff 2/tokens.css + DELTA-01/02). Plain CSS variables.
+   Fonts are self-hosted via @fontsource (imported in Base.astro), not Google Fonts. */
+:root {
+  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', sans-serif; /* name, headings, nav, buttons, labels */
+  --font-body: 'Spectral', Georgia, serif;                                          /* paragraphs, lead, quotes */
+
+  /* Color. indigo = identity, signal = action / "now". Ink text on signal, cream (--bg) text on indigo/ink. */
+  --bg: #F3EFE6; --surface: #E6E0D2; --ink: #121110; --muted: #5E5A52;
+  --signal: #DB551D; --signal-hover: #C24814;
+  --indigo: #384CA2;
+  --rule-w: 2px; --rule: var(--rule-w) solid var(--ink);
+  --rule-thin: 1px solid color-mix(in srgb, var(--muted) 30%, transparent);
+  --radius: 0;
+  --focus-ring: 3px solid var(--indigo); --focus-offset: 3px;
+
+  /* Type scale */
+  --fs-hero: clamp(56px, 10vw, 104px); --fs-h2: clamp(36px, 5vw, 56px); --fs-h3: 24px;
+  --fs-lead: 24px; --fs-body: 18px; --fs-body-s: 17px; --fs-label: 12px;
+  --fs-num: 40px; --fs-card: 26px; --fs-entry: 22px; --fs-degree: 20px;
+  --fs-toc: 16px; --fs-meta: 15px; --fs-chip: 14px;
+  --lh-hero: 0.88; --lh-tight: 1.2; --lh-degree: 1.35; --lh-body: 1.6;
+  --track-hero: -0.04em; --track-label: 0.1em;
+  --measure: 60ch;
+
+  /* Spacing steps: 8 16 24 40 56 96 */
+  --s-1: 8px; --s-2: 16px; --s-3: 24px; --s-4: 40px; --s-5: 56px; --s-6: 96px;
+  --chip-pad: 8px 14px;
+
+  /* Layout */
+  --max: 1200px; --gutter: 24px;
+  --tap: 44px; --col-date: 160px; --sidebar: 280px; --feature-min: 320px;
+  /* Breakpoints (CSS vars can't be used in @media; keep these in sync with the literals there) */
+  --bp-nav: 48rem; --bp-sidebar: 60rem;
+}

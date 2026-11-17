@@ -1,0 +1,117 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import cv, { slugify } from '../data/cv';
+import { site } from '../data/site';
+import threeMt from '../assets/3mt-defuse-timebomb.png';
+
+const filters = site.portfolioFilters;
+const groupOf = (tag: string) => filters.find((f) => f.tags.includes(tag))?.id;
+
+// Build-time check: every project tag belongs to a filter group.
+for (const p of cv.projects) {
+  for (const t of p.tags ?? []) {
+    if (!groupOf(t)) throw new Error(`Portfolio: tag "${t}" (${p.title}) is not in any site.portfolioFilters group`);
+  }
+}
+
+// 3MT card first (full width), rest in cv.json order in a 2-column grid.
+const withMeta = (p: (typeof cv.projects)[number]) => ({
+  ...p,
+  anchor: ('slug' in p && p.slug) || slugify(p.title), // card anchor; distinct from p.slug, which only exists when a project page does
+  groups: [...new Set((p.tags ?? []).map(groupOf))].join(' '),
+});
+const feature = cv.projects.filter((p) => p.title.startsWith(site.threeMtTitle)).map(withMeta)[0];
+const projects = cv.projects.filter((p) => !p.title.startsWith(site.threeMtTitle)).map(withMeta);
+
+// Pure-CSS filtering: a chip targets a hidden marker; :has() hides cards outside the group.
+const filterCss = filters
+  .map(
+    (f) => `.portfolio:has(#f-${f.id}:target) .project:not([data-groups~="${f.id}"]){display:none}
+.portfolio:has(#f-${f.id}:target) .chips a[href="#f-${f.id}"]{background:var(--ink);color:var(--bg)}`
+  )
+  .join('\n');
+---
+<Base title="Portfolio" description={`Selected projects by ${cv.name.split(',')[0]}: research, design and communication.`}>
+  <section class="section portfolio">
+    <div class="container">
+      <p class="label">Portfolio</p>
+      <h1>Selected work</h1>
+      <p class="muted">{site.portfolioIntro}</p>
+
+      <span id="all" class="marker"></span>
+      {filters.map((f) => <span id={`f-${f.id}`} class="marker"></span>)}
+      <nav class="chips" aria-label="Filter projects">
+        <ul class="chip-list">
+          <li><a href="#all" class="chip chip--all" aria-current="true">All</a></li>
+          {filters.map((f) => <li><a href={`#f-${f.id}`} class="chip">{f.label}</a></li>)}
+        </ul>
+      </nav>
+
+      {feature && (
+        <div id={feature.anchor} class="project ruled feature" data-groups={feature.groups}>
+          <Image
+            src={threeMt}
+            alt={site.featureAlt}
+            widths={[390, 640, 960, 1280]}
+            sizes="(min-width: 48rem) 60vw, 100vw"
+            format="webp"
+            loading="eager"
+            fetchpriority="high"
+          />
+          <ProjectCard project={feature} level="h2" />
+        </div>
+      )}
+
+      {projects.length > 0 && (
+        <ul class="projects">
+          {projects.map((p) => (
+            <li id={p.anchor} class="project" data-groups={p.groups}><ProjectCard project={p} level="h2" /></li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Mirror the CSS-only :target filter state into aria-current (progressive enhancement).
+  const chips = document.querySelectorAll<HTMLAnchorElement>('.chips a');
+  const sync = () => {
+    const hash = location.hash && document.querySelector(`.chips a[href="${location.hash}"]`) ? location.hash : '#all';
+    chips.forEach((a) => (a.getAttribute('href') === hash ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
+  };
+  window.addEventListener('hashchange', sync);
+  sync();
+</script>
+
+<style is:global set:html={filterCss}></style>
+<style>
+  .marker { display: block; height: 0; }
+  .chip-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-1); margin: var(--s-3) 0; }
+  .chip {
+    display: inline-block; padding: var(--chip-pad); border: var(--rule); border-radius: var(--radius);
+    font-family: var(--font-display); font-weight: 700; font-size: var(--fs-chip); text-decoration: none; color: var(--ink); background: var(--bg);
+  }
+  .chip:hover { background: var(--surface); }
+  /* "All" looks active unless a filter marker is targeted */
+  .portfolio:not(:has(.marker:not(#all):target)) .chip--all { background: var(--ink); color: var(--bg); }
+  .project { scroll-margin-top: var(--s-4); }
+  .project:target { outline: var(--focus-ring); outline-offset: calc(-1 * var(--rule-w)); }
+  /* 3MT: full width, 3fr / 2fr like the Home feature */
+  .feature { display: grid; grid-template-columns: 3fr 2fr; border-bottom: 0; }
+  .feature :global(img) { width: 100%; height: 100%; min-height: var(--feature-min); object-fit: cover; }
+  .feature > :global(.project-card) { border-left: var(--rule); }
+  /* Ruled 2-column grid; an odd last cell shows --surface (grid background) */
+  .projects {
+    list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr;
+    border-top: var(--rule); border-left: var(--rule); background: var(--surface);
+    box-shadow: inset calc(-1 * var(--rule-w)) calc(-1 * var(--rule-w)) 0 var(--ink);
+  }
+  .projects > li { background: var(--bg); border-right: var(--rule); border-bottom: var(--rule); }
+  @media (max-width: 47.99rem) {
+    .feature, .projects { grid-template-columns: 1fr; }
+    .feature > :global(.project-card) { border-left: 0; border-top: var(--rule); }
+  }
+</style>

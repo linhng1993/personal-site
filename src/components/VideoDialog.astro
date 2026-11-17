@@ -1,0 +1,62 @@
+---
+// Click-to-play YouTube embed (privacy: nothing loads from YouTube until the visitor opens it).
+// A text button opens a native <dialog>; the iframe is created on open and removed on close.
+interface Props {
+  id: string; // YouTube video id
+  title: string;
+  label?: string;
+}
+const { id, title, label = 'Watch' } = Astro.props;
+const dialogId = `video-${id}`;
+const watchUrl = `https://www.youtube.com/watch?v=${id}`;
+---
+<button type="button" class="watch-btn" data-video-open={dialogId}>
+  {label}<span class="sr-only">: {title}</span> <span aria-hidden="true">→</span>
+</button>
+
+<dialog id={dialogId} class="video-dialog" aria-label={title} data-video-id={id}>
+  <div class="video-bar">
+    <a class="video-yt" href={watchUrl} rel="noopener noreferrer" target="_blank">Watch on YouTube<span class="sr-only"> (opens in a new tab)</span> <span aria-hidden="true">↗</span></a>
+    <button type="button" class="video-close" data-video-close>Close<span class="sr-only"> video</span> <span aria-hidden="true">✕</span></button>
+  </div>
+  <div class="video-frame" data-video-frame></div>
+</dialog>
+
+<style>
+  .watch-btn { font: inherit; font-family: var(--font-display); font-weight: 700; color: var(--ink); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: none; }
+  .watch-btn:hover { color: var(--indigo); text-decoration: underline; }
+  .video-dialog { width: min(60rem, 92vw); max-width: 92vw; padding: 0; border: var(--rule, 1px solid currentColor); background: var(--paper, #fff); color: var(--ink); }
+  .video-dialog::backdrop { background: rgb(0 0 0 / 0.7); }
+  .video-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.75rem 1rem; font-family: var(--font-display); font-weight: 700; }
+  .video-yt { color: var(--ink); text-decoration: none; }
+  .video-yt:hover { color: var(--indigo); text-decoration: underline; }
+  .video-close { font: inherit; font-family: var(--font-display); font-weight: 700; background: none; border: 0; cursor: pointer; color: var(--ink); }
+  .video-close:hover { color: var(--indigo); }
+  .video-frame { aspect-ratio: 16 / 9; background: #000; }
+  .video-frame :global(iframe) { width: 100%; height: 100%; border: 0; display: block; }
+</style>
+
+<script>
+  const open = (dlg: HTMLDialogElement) => {
+    const frame = dlg.querySelector<HTMLElement>('[data-video-frame]');
+    if (frame && !frame.firstChild) {
+      const f = document.createElement('iframe');
+      f.src = `https://www.youtube-nocookie.com/embed/${dlg.dataset.videoId}?autoplay=1&rel=0`;
+      f.title = dlg.getAttribute('aria-label') ?? 'Video';
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      frame.appendChild(f);
+    }
+    dlg.showModal();
+  };
+  document.querySelectorAll<HTMLButtonElement>('[data-video-open]').forEach((btn) => {
+    const dlg = document.getElementById(btn.dataset.videoOpen!) as HTMLDialogElement | null;
+    if (!dlg) return;
+    btn.addEventListener('click', () => open(dlg));
+    dlg.querySelector('[data-video-close]')?.addEventListener('click', () => dlg.close());
+    // Click on the backdrop (outside the box) closes.
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+    // Stop playback on close (Esc, button or backdrop) by removing the iframe.
+    dlg.addEventListener('close', () => { const fr = dlg.querySelector('[data-video-frame]'); if (fr) fr.innerHTML = ''; });
+  });
+</script>

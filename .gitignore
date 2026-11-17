@@ -1,0 +1,14 @@
+content/private/*
+!content/private/.gitkeep
+exports/*
+!exports/.gitkeep
+node_modules/
+dist/
+.astro/
+.DS_Store
+to_delete/
+
+# Working material kept private (M9 decision)
+.ai/memory/
+.ai/handoff/
+design/

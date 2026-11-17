@@ -1,0 +1,195 @@
+---
+import Base from '../layouts/Base.astro';
+import cv from '../data/cv';
+import { site } from '../data/site';
+
+// "2026-01" -> "2026"; "2021-2022" -> "2021 — 2022"; anything else unchanged.
+const yr = (v?: string) => (v && /^\d{4}-\d{2}$/.test(v) ? v.slice(0, 4) : v ?? '');
+const dash = (v?: string) => (v ?? '').replace(/(\d{4})-(\d{4})/, '$1 — $2');
+const range = (start?: string, end?: string) => {
+  const s = yr(start), e = end ? yr(end) : 'present';
+  return s === e ? s : `${s} — ${e}`;
+};
+const has: Record<string, boolean> = {
+  experience: cv.experience.length > 0,
+  education: cv.education.length > 0,
+  skills: cv.skills.length > 0,
+  awards: cv.awards.length > 0,
+  publications: Boolean(cv.publications_summary),
+  volunteering: cv.volunteering.length > 0,
+  languages: cv.languages.length > 0,
+};
+const allSections = [
+  { id: 'experience', label: 'Experience' },
+  { id: 'education', label: 'Education' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'awards', label: 'Awards' },
+  { id: 'publications', label: 'Publications' },
+  { id: 'volunteering', label: 'Volunteering' },
+  { id: 'languages', label: 'Languages' },
+];
+const sections = allSections.filter((s) => has[s.id]);
+const [name] = cv.name.split(',');
+---
+<Base title="CV" description={`CV of ${name}: ${cv.headline}`}>
+  <div class="container layout">
+    <aside class="sidebar" aria-label="CV downloads and sections">
+      {site.downloads.length > 0 && (
+        <div id="downloads" class="block">
+          <p class="label">Download</p>
+          <ul class="downloads">
+            {site.downloads.map((d) => (
+              <li><a class="btn" href={d.href} download>{d.label}<span class="sr-only"> ({d.kind})</span> <span aria-hidden="true">↓</span></a></li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <nav class="block" aria-labelledby="jump-label">
+        <p class="label" id="jump-label">On this page</p>
+        <ul class="jump">
+          {sections.map((s) => <li><a href={`#${s.id}`}>{s.label}</a></li>)}
+        </ul>
+      </nav>
+    </aside>
+
+    <article class="cv">
+      <header>
+        <h1>{cv.name}</h1>
+        <p class="lead">{cv.headline}</p>
+        <p>{cv.summary}</p>
+        <ul class="links">
+          {cv.links.map((l) => <li><a href={l.url} rel="noopener">{l.label}</a></li>)}
+        </ul>
+      </header>
+
+      {has.experience && (
+        <section id="experience" aria-labelledby="experience-h">
+          <h2 id="experience-h">Experience</h2>
+          {cv.experience.map((e) => (
+            <div class="entry">
+              <p class="label date">{range(e.start, e.end)}</p>
+              <div>
+                <h3 class="role">{e.role}</h3>
+                {e.org && <p class="org">{e.org}</p>}
+                {e.highlights && e.highlights.length > 0 && <ul class="bullets">{e.highlights.map((h) => <li>{h}</li>)}</ul>}
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {has.education && (
+        <section id="education" aria-labelledby="education-h">
+          <h2 id="education-h">Education</h2>
+          {cv.education.map((e) => (
+            <div class="entry">
+              <p class="label date">{dash(e.year)}</p>
+              <div>
+                <h3 class="degree">{e.degree}</h3>
+                {e.school && <p class="org">{e.school}</p>}
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {has.skills && (
+        <section id="skills" aria-labelledby="skills-h">
+          <h2 id="skills-h">Skills</h2>
+          <ul class="ruled-list">{cv.skills.map((s) => <li>{s}</li>)}</ul>
+        </section>
+      )}
+
+      {has.awards && (
+        <section id="awards" aria-labelledby="awards-h">
+          <h2 id="awards-h">Awards</h2>
+          {cv.awards.map((a) => (
+            <div class="entry">
+              <p class="label date">{a.year ?? ''}</p>
+              <p class="text">{a.title}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {has.publications && (
+        <section id="publications" aria-labelledby="publications-h">
+          <h2 id="publications-h">Publications</h2>
+          <p>{cv.publications_summary}</p>
+        </section>
+      )}
+
+      {has.volunteering && (
+        <section id="volunteering" aria-labelledby="volunteering-h">
+          <h2 id="volunteering-h">Volunteering</h2>
+          {cv.volunteering.map((v) => (
+            <div class="entry">
+              <p class="label date">{dash(v.year)}</p>
+              <div>
+                <h3 class="role">{v.role}</h3>
+                {v.description && <p class="text">{v.description}</p>}
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {has.languages && (
+        <section id="languages" aria-labelledby="languages-h">
+          <h2 id="languages-h">Languages</h2>
+          <ul class="ruled cells cells--4 langs">
+            {cv.languages.map((l) => (
+              <li><span class="lang">{l.language}</span> <span class="level">{l.level}</span></li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </article>
+  </div>
+</Base>
+
+<style>
+  .layout { display: grid; padding-block: var(--s-5); }
+  .sidebar { padding-bottom: var(--s-4); border-bottom: var(--rule); margin-bottom: var(--s-4); }
+  .block + .block { margin-top: var(--s-4); }
+  .downloads, .jump, .links { list-style: none; padding: 0; margin: 0; }
+  .downloads { display: grid; gap: var(--s-1); }
+  .downloads .btn { display: block; width: 100%; }
+  .jump li { border-bottom: var(--rule-thin); }
+  .jump a { display: block; padding-block: var(--s-1); font-size: var(--fs-toc); text-decoration: none; }
+  .jump a:hover { color: var(--indigo); text-decoration: underline; }
+  .links { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+  .links a { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-meta); color: var(--indigo); }
+  .links a:hover { color: var(--ink); }
+  .cv section { margin-top: var(--s-5); scroll-margin-top: var(--s-3); }
+  .cv header h1 { font-size: var(--fs-h2); line-height: var(--lh-tight); letter-spacing: normal; }
+  .lead { font-size: var(--fs-lead); }
+  /* Entry row: date | content, top rule per entry */
+  .entry { display: grid; grid-template-columns: var(--col-date) 1fr; gap: var(--s-3); border-top: var(--rule); padding-block: var(--s-2); }
+  .date { color: var(--muted); margin: 0; padding-top: var(--s-1); }
+  .role { font-size: var(--fs-entry); line-height: var(--lh-tight); margin: 0; }
+  .org { font-size: var(--fs-meta); color: var(--muted); margin: 0; }
+  .degree { font-family: var(--font-body); font-weight: 500; font-size: var(--fs-degree); line-height: var(--lh-degree); margin: 0; }
+  .bullets { font-size: var(--fs-body-s); margin: var(--s-1) 0 0; display: grid; gap: var(--s-1); }
+  .text { font-size: var(--fs-body-s); margin: 0; }
+  .langs li { padding: var(--s-2) var(--s-3); }
+  .lang { display: block; font-family: var(--font-display); font-weight: 700; font-size: var(--fs-entry); }
+  .level { font-size: var(--fs-meta); color: var(--muted); }
+  @media (max-width: 47.99rem) {
+    .entry { grid-template-columns: 1fr; gap: 0; }
+  }
+  /* 60rem = --bp-sidebar */
+  @media (min-width: 60rem) {
+    .layout { grid-template-columns: var(--sidebar) 1fr; align-items: start; }
+    .sidebar { position: sticky; top: var(--s-3); padding: 0 var(--s-3) 0 0; border-bottom: 0; margin: 0; }
+    .cv { padding-left: var(--s-4); border-left: var(--rule); }
+  }
+  @media print {
+    .sidebar { display: none; }
+    .layout { display: block; padding-block: 0; }
+    .cv { padding-left: 0; border-left: 0; }
+    .cv section { margin-top: var(--s-3); }
+    .entry { break-inside: avoid; }
+    .links a::after { content: ' (' attr(href) ')'; font-weight: 400; }
+  }
+</style>

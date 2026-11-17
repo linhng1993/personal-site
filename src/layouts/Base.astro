@@ -1,0 +1,72 @@
+---
+import '@fontsource-variable/bricolage-grotesque/opsz.css';
+import '@fontsource/spectral/400.css';
+import '@fontsource/spectral/400-italic.css';
+import '@fontsource/spectral/500.css';
+import '../styles/global.css';
+// Preload the two latin files used above the fold (H1 + body text).
+import bricolageLatin from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-opsz-normal.woff2?url';
+import spectralLatin from '@fontsource/spectral/files/spectral-latin-400-normal.woff2?url';
+import { getImage } from 'astro:assets';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import cv from '../data/cv';
+import { site } from '../data/site';
+import { url } from '../lib/url';
+import threeMt from '../assets/3mt-defuse-timebomb.png';
+
+interface Props { title?: string; description?: string; }
+const { title, description = cv.headline } = Astro.props;
+const name = cv.name.split(',')[0];
+const fullTitle = title ? `${title} | ${name}` : name;
+
+// Canonical: absolute, with trailing slash (matches how GitHub Pages serves directory pages).
+const canonical = new URL(Astro.url.pathname.replace(/\/?$/, '/'), Astro.site).href;
+
+// Share image: the 3MT drawing. PNG, because the source has transparency (JPEG would turn it black).
+const ogWidth = 1200;
+const ogHeight = Math.round((ogWidth * threeMt.height) / threeMt.width);
+const og = await getImage({ src: threeMt, width: ogWidth, format: 'png' });
+const ogImage = new URL(og.src, Astro.site).href;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href={url('/sitemap-index.xml')} />
+    <meta name="theme-color" content="#F3EFE6" />
+    <link rel="icon" href="data:," />
+    <link rel="preload" href={bricolageLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={spectralLatin} as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content={String(ogWidth)} />
+    <meta property="og:image:height" content={String(ogHeight)} />
+    <meta property="og:image:alt" content={site.featureAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={site.featureAlt} />
+
+    <noscript><style is:inline>@media (max-width:47.99rem){[data-burger]{display:none!important}[data-nav]{display:block!important;position:static!important}}</style></noscript>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
