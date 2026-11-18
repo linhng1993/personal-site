@@ -47,6 +47,7 @@ const h1 = s.h1.replace(/\.$/, '');
                 {c.title && <h2>{c.title}</h2>}
                 {(c.role || c.place) && <p class="label meta">{[c.role, c.place].filter(Boolean).join(' · ')}</p>}
                 {c.body && c.body.split('\n\n').map((para) => <p class="body">{para}</p>)}
+                {c.link?.href && <p class="body"><a href={c.link.href} target="_blank" rel="noopener">{c.link.label} <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a></p>}
               </div>
               {c.takeaway && (
                 <div class="c-right">

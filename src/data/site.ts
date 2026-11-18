@@ -42,7 +42,7 @@ export const site = {
         body:
           "Every three or four years, my parents moved me to a new school. I learned early to make friends fast and read a room quickly.\n\nAt 15, I left my rural hometown for Hanoi and one of Vietnam’s most competitive high schools. Every summer I went back home. I sat in the garden and watched birds and insects for hours. That is where my biology began.\n\nI went on to earn a biology degree and, alongside it, a design diploma. I also led a project group in a student environmental club. I brought together students from different universities, raised funds and ran campaigns for young people. This was when one-use plastic was normal and bringing your own bag looked odd.\n\nI then became a project officer at an environmental NGO, C&E. There I ran larger campaigns, and sponsors expected clear numbers and reports. The work took me across Vietnam, to Singapore and Norway, and to Nepal for four months. I met experts from many countries.\n\nAt PATH, an international health organisation, I worked on health and HIV campaigns. I advised both the technical and the marketing teams. My job was to turn complex content into materials people could understand and use.",
         takeaway:
-          'Starting over many times taught me to adapt fast, reach out first and listen before I speak. In science and in regulated work, the gap between what people ask for and what they need is where the real work happens. I close that gap.',
+          'Starting over many times taught me to adapt fast, reach out first and listen before I speak. In science and in regulated work, the gap between what people ask for and what they need is where the real work happens. That is the gap I want to help close.',
       },
       {
         years: '2019–2021',
@@ -62,7 +62,11 @@ export const site = {
         role: 'Scientific project officer and PhD candidate, then regulatory affairs CMC postgraduate',
         place: 'Graz, Schaftenau',
         body:
-          "A weak passport taught me documentation the hard way. Every visa meant a stack of documents, and every document meant several offices to satisfy.\n\nThat habit followed me into the lab. From 2021 to mid-2025, I worked in the BSL-3 team at the Medical University of Graz, for nearly four years. I designed and documented experiments that moved between BSL-2 and BSL-3, where the working rules differ. Each move had to be written down clearly enough that another team could repeat it safely.\n\nI mentored two master’s students. I am completing my PhD, due in June 2027. A paper on which I am joint first author is accepted in Emerging Infectious Diseases.\n\nAfter the lab, I took a break to learn German, and I am now at B1. In January 2026, I joined Novartis as a regulatory affairs CMC postgraduate. I am learning to draft and review Module 3 dossiers, and I will rotate through Biologics, Cell and Gene Therapy, and Small Molecules.",
+          "A weak passport taught me documentation the hard way. Every visa meant a stack of documents, and every document meant several offices to satisfy.\n\nThat habit followed me into the lab. From 2021 to mid-2025, I worked in the BSL-3 team at the Medical University of Graz, for nearly four years. I designed and documented experiments that moved between BSL-2 and BSL-3, where the working rules differ. Each move had to be written down clearly enough that another team could repeat it safely.\n\nI mentored two master’s students. I am completing my PhD, due in June 2027. A paper on which I am joint first author is accepted in Emerging Infectious Diseases.\n\nAfter the lab, I took a break to learn German, and I am now at B1. In January 2026, I joined Novartis as a regulatory affairs CMC postgraduate. I am learning to draft and review Module 3 dossiers, and I will rotate through different CMC areas.",
+        link: {
+          label: 'Check out other Novartis postgraduate programs',
+          href: 'https://www.novartis.com/careers/early-careers/graduates#tabresearch-development-210701',
+        },
         takeaway:
           'A visa file is never just a checklist. It means knowing what the authority asks and which gap you still have to fill. Moving countries taught me to record everything early and prepare what I might need later. That is how I see a dossier in regulatory affairs CMC.',
       },
