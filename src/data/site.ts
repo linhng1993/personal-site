@@ -105,7 +105,7 @@ export const site = {
     { id: 'design', label: 'Design', tags: ['editorial design', 'design'] },
     { id: 'tech', label: 'Tech & AI', tags: ['Astro', 'automation', 'AI'] },
   ],
-  portfolioIntro: 'Research, design and communication projects. Pick a chip to filter; all work without JavaScript.',
+  portfolioIntro: 'Research, design and communication projects. Filter by type below.',
   // Links to routes without a page in src/pages are hidden by Nav.astro (DELTA-01). Contact dropped in M8 (no page, no public email).
   nav: [
     { label: 'Story', href: '/story' },
